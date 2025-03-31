@@ -7,9 +7,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve static frontend files
-app.use(express.static("public"));
-
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
@@ -17,6 +14,11 @@ mongoose.connect(process.env.MONGO_URI, {
 })
 .then(() => console.log("✅ MongoDB Connected"))
 .catch(err => console.error("❌ MongoDB Error:", err));
+
+// Serve `index.html` from the main directory
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "Index.html"));
+});
 
 // Contact Form API
 const contactSchema = new mongoose.Schema({
@@ -35,11 +37,6 @@ app.post("/contact", async (req, res) => {
     } catch (error) {
         res.status(500).json({ success: false, message: "Error saving message" });
     }
-});
-
-// Serve index.html for root route
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "Index.html"));
 });
 
 const PORT = process.env.PORT || 5000;

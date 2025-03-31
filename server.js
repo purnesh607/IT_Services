@@ -1,25 +1,29 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const path = require("path");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Serve static frontend files
+app.use(express.static("public"));
+
 // MongoDB Connection
-mongoose.connect("mongodb+srv://paloni16:Xznf3HP0ofeazY1c@cluster0.pvsqqea.mongodb.net/IT-Services-DB", {
+mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
-.then(() => console.log("MongoDB Connected"))
-.catch(err => console.error("MongoDB Connection Error:", err));
+.then(() => console.log("✅ MongoDB Connected"))
+.catch(err => console.error("❌ MongoDB Error:", err));
 
+// Contact Form API
 const contactSchema = new mongoose.Schema({
     name: String,
     email: String,
     message: String
 });
-
 const Contact = mongoose.model("Contact", contactSchema);
 
 app.post("/contact", async (req, res) => {
@@ -33,9 +37,10 @@ app.post("/contact", async (req, res) => {
     }
 });
 
+// Serve index.html for root route
 app.get("/", (req, res) => {
-    res.send("IT Services Backend is Running!");
+    res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
